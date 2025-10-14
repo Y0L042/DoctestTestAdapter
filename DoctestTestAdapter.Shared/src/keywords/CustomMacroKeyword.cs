@@ -180,11 +180,6 @@ namespace DoctestTestAdapter.Shared.Keywords
             {
                 string macroName = _currentMacroDefinition.Substring(0, _currentMacroDefinition.IndexOf("("));
 
-                if (_logger != null)
-                {
-                    _logger.SendMessage(TestMessageLevel.Informational, Shared.Helpers.Constants.InformationMessagePrefix + " - Found macro " + macroName + " mapped to " + keyword.Word);
-                }
-
                 // Add to the dictionary of custom macro definition -> doctest macros
                 MapMacro(line, macroName, keyword);
             }
