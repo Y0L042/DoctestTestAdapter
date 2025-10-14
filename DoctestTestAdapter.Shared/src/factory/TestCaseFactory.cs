@@ -38,12 +38,12 @@ namespace DoctestTestAdapter.Shared.Factory
 {
     internal class TestCaseFactory
     {
-        private string _executableFilePath = null;
-        private string _executableDirectory = null;
-        private string _solutionDirectory = null;
-        private DoctestTestSettings _settings = null;
-        private IRunContext _runContext = null;
-        private IMessageLogger _logger = null;
+        private readonly string _executableFilePath = null;
+        private readonly string _executableDirectory = null;
+        private readonly string _solutionDirectory = null;
+        private readonly DoctestTestSettings _settings = null;
+        private readonly IRunContext _runContext = null;
+        private readonly IMessageLogger _logger = null;
 
         internal TestCaseFactory(string executableFilePath, DoctestTestSettings settings, IRunContext runContext, IMessageLogger logger)
         {
@@ -68,10 +68,12 @@ namespace DoctestTestAdapter.Shared.Factory
 
             string fullyQualifiedName = string.Join(@"::", parts);
 
-            TestCase testCase = new TestCase(fullyQualifiedName, Helpers.Constants.ExecutorUri, testOwner);
-            testCase.DisplayName = testCaseName;
-            testCase.CodeFilePath = sourceCodeFilePath;
-            testCase.LineNumber = lineNumber;
+            TestCase testCase = new TestCase(fullyQualifiedName, Helpers.Constants.ExecutorUri, testOwner)
+            {
+                DisplayName = testCaseName,
+                CodeFilePath = sourceCodeFilePath,
+                LineNumber = lineNumber
+            };
 
             return testCase;
         }
@@ -150,7 +152,7 @@ namespace DoctestTestAdapter.Shared.Factory
                     foreach (string line in allLines)
                     {
                         ++currentLineNumber;
-                        allKeywords.ForEach(k => k.Check(_executableFilePath, sourceFilePath, ref testNamespace, ref testClassName, line, currentLineNumber, ref testCases, currentLineNumber == allLines.Count()));
+                        allKeywords.ForEach(k => k.Check(_executableFilePath, sourceFilePath, ref testNamespace, ref testClassName, line, currentLineNumber, ref testCases, currentLineNumber == allLines.Length));
                     }
                 }
             }

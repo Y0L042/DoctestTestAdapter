@@ -60,6 +60,11 @@
     <Compile Include="src\settings\DoctestTestSettingsProvider.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
+      <Version>9.0.0</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.TestPlatform.ObjectModel">
       <Version>17.13.0</Version>
     </PackageReference>
