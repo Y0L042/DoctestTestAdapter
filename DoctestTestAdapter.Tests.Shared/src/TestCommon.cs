@@ -55,6 +55,7 @@ namespace DoctestTestAdapter.Tests
         internal static string UsingDoctestMainExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe";
         internal static string ExecutableUsingDLLExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\ExecutableUsingDLL\\ExecutableUsingDLL.exe";
         internal static string DLLExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\ExecutableUsingDLL\\DLL.dll";
+        internal static string PrintOutputExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\PrintOutput\\PrintOutput.exe";
 
         internal static string NoDoctestUnitTestsPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\NoDoctestUnitTests\\NoDoctestUnitTests.pdb";
         internal static string OnlyTestCasesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\OnlyTestCases\\OnlyTestCases.pdb";
@@ -63,6 +64,7 @@ namespace DoctestTestAdapter.Tests
         internal static string UsingDoctestMainPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.pdb";
         internal static string ExecutableUsingDLLPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\ExecutableUsingDLL\\ExecutableUsingDLL.pdb";
         internal static string DLLPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\DLL\\DLL.pdb";
+        internal static string PrintOutputPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\PrintOutput\\PrintOutput.pdb";
 #else
         internal static string NoDoctestUnitTestsExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\NoDoctestUnitTests\\NoDoctestUnitTests.exe";
         internal static string OnlyTestCasesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\OnlyTestCases\\OnlyTestCases.exe";
@@ -73,6 +75,7 @@ namespace DoctestTestAdapter.Tests
         internal static string UsingDoctestMainExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.exe";
         internal static string ExecutableUsingDLLExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\ExecutableUsingDLL\\ExecutableUsingDLL.exe";
         internal static string DLLExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\ExecutableUsingDLL\\DLL.dll";
+        internal static string PrintOutputExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\PrintOutput\\PrintOutput.exe";
 
         internal static string NoDoctestUnitTestsPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\NoDoctestUnitTests\\NoDoctestUnitTests.pdb";
         internal static string OnlyTestCasesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\OnlyTestCases\\OnlyTestCases.pdb";
@@ -81,6 +84,7 @@ namespace DoctestTestAdapter.Tests
         internal static string UsingDoctestMainPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.pdb";
         internal static string ExecutableUsingDLLPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\ExecutableUsingDLL\\ExecutableUsingDLL.pdb";
         internal static string DLLPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\DLL\\DLL.pdb";
+        internal static string PrintOutputPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\PrintOutput\\PrintOutput.pdb";
 #endif
 
         internal static string NoDoctestUnitTestsHeaderFilePath = ExamplesSolutionDirectory + "NoDoctestUnitTests\\NoUnitTests.h";
@@ -117,16 +121,16 @@ namespace DoctestTestAdapter.Tests
                 DoctestRunSettingsStart +
                     GeneralRunSettingsStart +
                         "\t\t\t<CommandArguments>--test</CommandArguments>\n" +
-                        "\t\t\t<PrintStandardOutput>true</PrintStandardOutput>\n" +
+                        "\t\t\t<EnableDebugLogs>true</EnableDebugLogs>\n" +
                     GeneralRunSettingsEnd +
                 DoctestRunSettingsEnd +
             RunSettingsEnd;
 
-        internal static string GeneralRunSettingsPrintStandardOutputExample =
+        internal static string GeneralRunSettingsEnableDebugLogsExample =
             RunSettingsStart +
                 DoctestRunSettingsStart +
                     GeneralRunSettingsStart +
-                        "\t\t\t<PrintStandardOutput>true</PrintStandardOutput>\n" +
+                        "\t\t\t<EnableDebugLogs>true</EnableDebugLogs>\n" +
                     GeneralRunSettingsEnd +
                 DoctestRunSettingsEnd +
             RunSettingsEnd;
@@ -371,7 +375,7 @@ namespace DoctestTestAdapter.Tests
             Assert.IsFalse(hasErrors);
         }
 
-        internal static void AssertStandardOutputSettingOutput(string output, string expectedHeaderFilePath)
+        internal static void AssertEnableDebugLogsSettingOutput(string output, string expectedHeaderFilePath)
         {
             Assert.IsFalse(string.IsNullOrEmpty(output));
             Assert.IsTrue(output.Contains("Image has the following dependencies:"));

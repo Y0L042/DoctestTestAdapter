@@ -44,14 +44,14 @@ namespace DoctestTestAdapter.Tests.Settings
         }
 
         [TestMethod]
-        public void PrintStandardOutput()
+        public void EnableDebugLogs()
         {
             TestCommon.AssertErrorOutput(() =>
             {
                 DoctestTestSettings doctestSettings = TestCommon.LoadDoctestSettings(new DoctestTestSettingsProvider(), TestCommon.GeneralRunSettingsExample);
                 Assert.IsNotNull(doctestSettings);
                 Assert.IsNotNull(doctestSettings.GeneralSettings);
-                Assert.IsTrue(doctestSettings.GeneralSettings.PrintStandardOutput);
+                Assert.IsTrue(doctestSettings.GeneralSettings.EnableDebugLogs);
             });
         }
     }

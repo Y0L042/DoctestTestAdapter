@@ -76,14 +76,14 @@ namespace DoctestTestAdapter.Settings
             return false;
         }
 
-        public bool TryGetPrintStandardOutput(out bool printStandardOutput)
+        public bool TryGetEnableDebugLogs(out bool enableDebugLogs)
         {
             if (GeneralSettings != null)
             {
-                printStandardOutput = GeneralSettings.PrintStandardOutput;
+                enableDebugLogs = GeneralSettings.EnableDebugLogs;
                 return true;
             }
-            printStandardOutput = false;
+            enableDebugLogs = false;
             return false;
         }
 

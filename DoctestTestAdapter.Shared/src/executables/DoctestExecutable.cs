@@ -195,6 +195,25 @@ namespace DoctestTestAdapter.Shared.Executables
                             XmlNode resultsNode = testCaseNode.SelectSingleNode("OverallResultsAsserts");
                             if (resultsNode != null)
                             {
+                                XmlNodeList messageNodes = testCaseNode.SelectNodes("Message");
+                                foreach (XmlNode messageNode in messageNodes)
+                                {
+                                    XmlAttribute typeAttribute = messageNode.Attributes["type"];
+                                    if (typeAttribute != null && !string.IsNullOrEmpty(typeAttribute.Value) && !typeAttribute.Value.Contains("ERROR"))
+                                    {
+                                        XmlNode textNode = messageNode.SelectSingleNode("Text");
+                                        if (textNode != null)
+                                        {
+                                            TestResultMessage testResultMessage = new TestResultMessage
+                                                (
+                                                    TestResultMessage.StandardOutCategory,
+                                                    (textNode.InnerText.Trim() + "\n")
+                                                );
+                                            testResult.Messages.Add(testResultMessage);
+                                        }
+                                    }
+                                }
+
                                 XmlAttribute durationAttribute = resultsNode.Attributes["duration"];
                                 if (durationAttribute != null && !string.IsNullOrEmpty(durationAttribute.Value))
                                 {
@@ -231,10 +250,27 @@ namespace DoctestTestAdapter.Shared.Executables
                                             XmlNode originalNode = expressionNode.SelectSingleNode("Original");
                                             if (originalNode != null)
                                             {
-                                                errorMessage += ("( " + originalNode.InnerText.Trim() + " ) is NOT correct!");
+                                                errorMessage += ("( " + originalNode.InnerText.Trim() + " ) is NOT correct!\n");
                                             }
 
-                                            errorMessage += "\n";
+                                            XmlNodeList infoNodes = expressionNode.SelectNodes("Info");
+                                            foreach (XmlNode infoNode in infoNodes)
+                                            {
+                                                errorMessage += infoNode.InnerText.Trim() + "\n";
+                                            }
+                                        }
+
+                                        foreach (XmlNode messageNode in messageNodes)
+                                        {
+                                            XmlAttribute typeAttribute = messageNode.Attributes["type"];
+                                            if (typeAttribute != null && !string.IsNullOrEmpty(typeAttribute.Value) && typeAttribute.Value.Contains("ERROR"))
+                                            {
+                                                XmlNode textNode = messageNode.SelectSingleNode("Text");
+                                                if (textNode != null)
+                                                {
+                                                    errorMessage += textNode.InnerText.Trim() + "\n";
+                                                }
+                                            }
                                         }
 
                                         testResult.ErrorMessage = errorMessage;
@@ -415,6 +451,11 @@ namespace DoctestTestAdapter.Shared.Executables
                 _currentTestBatch = _testBatches.First();
                 RunUnitTests();
             }
+        }
+
+        protected override bool ShouldLogOutput()
+        {
+            return true;
         }
     }
 }

@@ -146,7 +146,7 @@ namespace DoctestTestAdapter.Tests.Discovery
             });
         }
 
-        private void UsingDoctestMainExe(string settingsAsString, bool shouldExpectToPrintStandardOutput)
+        private void UsingDoctestMainExe(string settingsAsString, bool shouldExpectToPrintDebugLogs)
         {
             TestCommon.AssertErrorOutput(() =>
             {
@@ -154,7 +154,11 @@ namespace DoctestTestAdapter.Tests.Discovery
                 IRunContext discoveryContext = A.Fake<IRunContext>();
                 IMessageLogger messageLogger = A.Fake<IMessageLogger>();
                 ITestCaseDiscoverySink testCaseDiscoverySink = A.Fake<ITestCaseDiscoverySink>();
+                Captured<TestMessageLevel> capturedTestMessageLevels = A.Captured<TestMessageLevel>();
+                Captured<string> capturedTestMessages = A.Captured<string>();
                 Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
+                A.CallTo(() => messageLogger.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
+                  .DoesNothing();
                 A.CallTo(() => discoveryContext.IsBeingDebugged)
                     .Returns(false);
                 A.CallTo(() => testCaseDiscoverySink.SendTestCase(capturedTestCases._))
@@ -183,9 +187,9 @@ namespace DoctestTestAdapter.Tests.Discovery
                     Console.SetOut(previousWriterOut);
                 }
 
-                if (shouldExpectToPrintStandardOutput)
+                if (shouldExpectToPrintDebugLogs)
                 {
-                    TestCommon.AssertStandardOutputSettingOutput(output, TestCommon.UsingDoctestMainTestHeaderFilePath);
+                    TestCommon.AssertEnableDebugLogsSettingOutput(string.Join("\n", capturedTestMessages.Values), TestCommon.UsingDoctestMainTestHeaderFilePath);
                 }
                 else
                 {
@@ -246,7 +250,7 @@ namespace DoctestTestAdapter.Tests.Discovery
         }
 
         [TestMethod]
-        public void DiscoverExeWithPrintStandardOutputSetting() =>
-            UsingDoctestMainExe(TestCommon.GeneralRunSettingsPrintStandardOutputExample, true);
+        public void DiscoverExeWithEnableDebugLogsSetting() =>
+            UsingDoctestMainExe(TestCommon.GeneralRunSettingsEnableDebugLogsExample, true);
     }
 }

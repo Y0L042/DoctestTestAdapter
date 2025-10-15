@@ -37,9 +37,9 @@ using TestResult = Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult;
 
 namespace DoctestTestAdapter.Tests.Execution
 {
-	[TestClass]
-	public class DoctestTestExecutorTest
-	{
+    [TestClass]
+    public class DoctestTestExecutorTest
+    {
         [TestMethod]
         public void ExecuteExeWithEmptyTestSuites()
         {
@@ -126,7 +126,7 @@ namespace DoctestTestAdapter.Tests.Execution
             });
         }
 
-        private void UsingDoctestMainExe(string settingsAsString, string expectedExeFileName, bool assertTestResults, bool shouldExpectToPrintStandardOutput)
+        private void UsingDoctestMainExe(string settingsAsString, string expectedExeFileName, bool assertTestResults, bool shouldExpectToPrintDebugLogs)
         {
             TestCommon.AssertErrorOutput(() =>
             {
@@ -171,9 +171,9 @@ namespace DoctestTestAdapter.Tests.Execution
                     Console.SetOut(previousWriter);
                 }
 
-                if (shouldExpectToPrintStandardOutput)
+                if (shouldExpectToPrintDebugLogs)
                 {
-                    TestCommon.AssertStandardOutputSettingOutput(output, TestCommon.UsingDoctestMainTestHeaderFilePath);
+                    TestCommon.AssertEnableDebugLogsSettingOutput(string.Join("\n", capturedTestMessages.Values), TestCommon.UsingDoctestMainTestHeaderFilePath);
                 }
                 else
                 {
@@ -181,9 +181,6 @@ namespace DoctestTestAdapter.Tests.Execution
                 }
 
                 Assert.HasCount(50, testCases);
-
-                Assert.HasCount(3, capturedTestMessageLevels.Values);
-                Assert.HasCount(3, capturedTestMessages.Values);
 
                 TestCommon.AssertTestCases(testCases,
                     TestCommon.UsingDoctestMainExecutableFilePath,
@@ -193,12 +190,8 @@ namespace DoctestTestAdapter.Tests.Execution
                 ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
                 doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
 
-                Assert.HasCount(4, capturedTestMessageLevels.Values);
-                Assert.HasCount(4, capturedTestMessages.Values);
                 foreach (TestMessageLevel testMessageLevel in capturedTestMessageLevels.Values)
                     Assert.AreEqual(TestMessageLevel.Informational, testMessageLevel);
-                Assert.IsTrue(capturedTestMessages.Values[0].Contains(Shared.Helpers.Constants.InformationMessagePrefix + " - Found macro "));
-                Assert.IsTrue(capturedTestMessages.Values[3].Contains(Shared.Helpers.Constants.InformationMessagePrefix + " - About to start exe " + expectedExeFileName + " with command arguments: "));
 
                 if (assertTestResults)
                 {
@@ -209,7 +202,7 @@ namespace DoctestTestAdapter.Tests.Execution
         }
 
         [TestMethod]
-		public void ExecuteExe() => 
+        public void ExecuteExe() =>
             UsingDoctestMainExe(string.Empty, "UsingDoctestMain.exe", true, false);
 
         [TestMethod]
@@ -232,9 +225,6 @@ namespace DoctestTestAdapter.Tests.Execution
 
                 List<TestCase> testCases = new TestCaseFactory(TestCommon.ExecutableUsingDLLExecutableFilePath, null, runContext, frameworkHandle).CreateTestCases();
                 Assert.HasCount(100, testCases);
-
-                Assert.HasCount(6, capturedTestMessageLevels.Values);
-                Assert.HasCount(6, capturedTestMessages.Values);
 
                 List<TestCase> dllTestCases = testCases
                     .ToList()
@@ -259,12 +249,8 @@ namespace DoctestTestAdapter.Tests.Execution
                 ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
                 doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
 
-                Assert.HasCount(8, capturedTestMessageLevels.Values);
-                Assert.HasCount(8, capturedTestMessages.Values);
                 foreach (TestMessageLevel testMessageLevel in capturedTestMessageLevels.Values)
                     Assert.AreEqual(TestMessageLevel.Informational, testMessageLevel);
-                Assert.IsTrue(capturedTestMessages.Values[0].Contains(Shared.Helpers.Constants.InformationMessagePrefix + " - Found macro "));
-                Assert.IsTrue(capturedTestMessages.Values[7].Contains(Shared.Helpers.Constants.InformationMessagePrefix + " - About to start exe ExecutableUsingDLL.exe with command arguments: "));
 
                 Assert.HasCount(100, capturedTestResults.Values);
                 List<TestResult> dllTestResults = capturedTestResults.Values
@@ -283,7 +269,56 @@ namespace DoctestTestAdapter.Tests.Execution
             UsingDoctestMainExe(TestCommon.ExecutorRunSettingsRelativeExecutableOverrideExample, "UsingCustomMain.exe", false, false);
 
         [TestMethod]
-        public void ExecuteExeWithPrintStandardOutputSetting() =>
-            UsingDoctestMainExe(TestCommon.GeneralRunSettingsPrintStandardOutputExample, "UsingDoctestMain.exe", false, true);
+        public void ExecuteExeWithEnableDebugLogsSetting() =>
+            UsingDoctestMainExe(TestCommon.GeneralRunSettingsEnableDebugLogsExample, "UsingDoctestMain.exe", false, true);
+
+        [TestMethod]
+        public void ExecuteExeWithInfoAndMessageOutput()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                IRunContext runContext = A.Fake<IRunContext>();
+                IFrameworkHandle frameworkHandle = A.Fake<IFrameworkHandle>();
+                Captured<TestMessageLevel> capturedTestMessageLevels = A.Captured<TestMessageLevel>();
+                Captured<string> capturedTestMessages = A.Captured<string>();
+                Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
+                Captured<TestResult> capturedTestResults = A.Captured<TestResult>();
+                A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
+                   .DoesNothing();
+                A.CallTo(() => frameworkHandle.RecordStart(capturedTestCases._))
+                    .DoesNothing();
+                A.CallTo(() => frameworkHandle.RecordResult(capturedTestResults._))
+                    .DoesNothing();
+                A.CallTo(() => runContext.IsBeingDebugged)
+                    .Returns(false);
+
+                List<TestCase> testCases = new TestCaseFactory(TestCommon.PrintOutputExecutableFilePath, null, runContext, frameworkHandle).CreateTestCases();
+                Assert.HasCount(11, testCases);
+
+                ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
+                doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
+
+                foreach (TestMessageLevel testMessageLevel in capturedTestMessageLevels.Values)
+                    Assert.AreEqual(TestMessageLevel.Informational, testMessageLevel);
+
+                Assert.IsTrue(string.Join("\n", capturedTestResults.Values[0].ErrorMessage).Contains("INFO called for test that will fail"));
+                Assert.IsFalse(string.Join("\n", capturedTestResults.Values[1].ErrorMessage).Contains("INFO should not be called for this test that will pass"));
+                Assert.IsTrue(string.Join("\n", capturedTestResults.Values[2].ErrorMessage).Contains("INFO called for test that will fail with variable: 11"));
+                Assert.IsTrue(string.Join("\n", capturedTestResults.Values[3].ErrorMessage).Contains("INFO called for test that will fail with variable: 11"));
+                Assert.IsTrue(string.Join("\n", capturedTestResults.Values[3].ErrorMessage).Contains("Another INFO called for test that will fail with another_variable: 15"));
+                Assert.IsTrue(capturedTestResults.Values[4].Messages[0].Text.Contains("MESSAGE called before check"));
+                Assert.IsTrue(capturedTestResults.Values[4].Messages[1].Text.Contains("MESSAGE called after check"));
+                Assert.IsTrue(capturedTestResults.Values[5].Messages[0].Text.Contains("MESSAGE called before check with variable: 38"));
+                Assert.IsTrue(capturedTestResults.Values[5].Messages[1].Text.Contains("MESSAGE called after check with variable: 38"));
+                Assert.IsTrue(capturedTestResults.Values[6].Messages[0].Text.Contains("MESSAGE called before check with variable: 38"));
+                Assert.IsTrue(capturedTestResults.Values[6].Messages[1].Text.Contains("Another MESSAGE called before check with another_variable: 5"));
+                Assert.IsTrue(capturedTestResults.Values[6].Messages[2].Text.Contains("MESSAGE called after check with variable: 38"));
+                Assert.IsTrue(capturedTestResults.Values[6].Messages[3].Text.Contains("Another MESSAGE called after check with another_variable: 5"));
+                Assert.IsTrue(string.Join("\n", capturedTestResults.Values[7].ErrorMessage).Contains("CHECK_MESSAGE called for failing test."));
+                Assert.IsTrue(string.Join("\n", capturedTestResults.Values[8].ErrorMessage).Contains("REQUIRE_MESSAGE called for failing test"));
+                Assert.IsTrue(string.Join("\n", capturedTestResults.Values[9].ErrorMessage).Contains("FAIL called for failing test"));
+                Assert.IsTrue(string.Join("\n", capturedTestResults.Values[10].ErrorMessage).Contains("FAIL_CHECK called for failing test"));
+            });
+        }
     }
 }

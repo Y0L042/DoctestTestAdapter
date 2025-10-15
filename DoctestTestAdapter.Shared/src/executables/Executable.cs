@@ -23,6 +23,7 @@
 // SOFTWARE.
 
 using DoctestTestAdapter.Settings;
+using DoctestTestAdapter.Shared.Helpers;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using System;
@@ -45,7 +46,7 @@ namespace DoctestTestAdapter.Shared.Executables
         private Process _process = null;
 
         internal Executable(string filePath, string solutionDirectory, DoctestTestSettings settings, IRunContext runContext, IMessageLogger logger, IFrameworkHandle frameworkHandle = null) : this(filePath, solutionDirectory, null, settings, runContext, logger, frameworkHandle)
-        {}
+        { }
 
         /// <summary>
         /// Executable Constructor.
@@ -89,11 +90,17 @@ namespace DoctestTestAdapter.Shared.Executables
                     _process.Start();
 
                     Output = _process.StandardOutput.ReadToEnd();
-                    if (Settings != null && Settings.TryGetPrintStandardOutput(out bool printStandardOutput) && printStandardOutput)
-                        Console.WriteLine(Path.GetFileName(FilePath) + " output: \n" + Output);
                     string errors = _process.StandardError.ReadToEnd();
                     if (!string.IsNullOrEmpty(errors))
                         Console.Error.WriteLine(Path.GetFileName(FilePath) + " errors: \n\t" + errors);
+
+                    if (!string.IsNullOrEmpty(Output))
+                    {
+                        if (ShouldLogOutput() && Logger != null)
+                        {
+                            Logger.SendMessage(TestMessageLevel.Informational, Constants.InformationMessagePrefix + " " + Path.GetFileName(FilePath) + " output: \n" + Output);
+                        }
+                    }
 
                     _process.WaitForExit();
                 }
@@ -115,11 +122,11 @@ namespace DoctestTestAdapter.Shared.Executables
 
                 _process.OutputDataReceived += new DataReceivedEventHandler((sender, e) =>
                 {
-                    if (Settings != null && Settings.TryGetPrintStandardOutput(out bool printStandardOutput) && printStandardOutput)
+                    if (!string.IsNullOrEmpty(e.Data))
                     {
-                        if (!string.IsNullOrEmpty(e.Data))
+                        if (ShouldLogOutput() && Logger != null)
                         {
-                            Console.WriteLine(e.Data);
+                            Logger.SendMessage(TestMessageLevel.Informational, Constants.InformationMessagePrefix + " " + e.Data);
                         }
                     }
                 });
@@ -140,7 +147,7 @@ namespace DoctestTestAdapter.Shared.Executables
         }
 
         protected virtual void OnProcessExited(object sender, EventArgs e)
-        {}
+        { }
 
         private void ProcessExited(object sender, EventArgs e)
         {
@@ -153,6 +160,11 @@ namespace DoctestTestAdapter.Shared.Executables
 
                 OnProcessExited(sender, e);
             }
+        }
+
+        protected virtual bool ShouldLogOutput()
+        {
+            return (Settings != null && Settings.TryGetEnableDebugLogs(out bool enableDebugLogs) && enableDebugLogs);
         }
     }
 }
