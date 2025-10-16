@@ -4,3 +4,4 @@
 [submodule "DoctestTestAdapter.Examples.Godot"]
 	path = DoctestTestAdapter.Examples.Godot
 	url = https://github.com/godotengine/godot.git
+	ignore = dirty
