@@ -59,4 +59,4 @@ jobs:
         with:
           name: Windows-${{ matrix.configuration }}-${{ steps.vars.outputs.BUILD_TIME }}-${{ github.ref_name }}-${{ steps.vars.outputs.SHA_SHORT }}
           path: DoctestTestAdapter.VSIX/bin/${{ matrix.configuration }}/
-          retention-days: 30
+          retention-days: 2
