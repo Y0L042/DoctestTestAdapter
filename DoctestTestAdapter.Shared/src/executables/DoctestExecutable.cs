@@ -85,15 +85,17 @@ namespace DoctestTestAdapter.Shared.Executables
 
             Start();
 
+            // TODO: Find a better way to know if an exe has implemented/included doctest - this is very hardcoded ;.;
+            string searchString = "===============================================================================";
+
             // This can happen in situations where the solution doesn't have any doctest unit tests in.
             // Which should be valid since a user might have this test adapter installed but not have the project setup with unit tests straight away.
             // So this test adapter should not error here and should handle this gracefully.
-            if (string.IsNullOrEmpty(Output))
+            if (string.IsNullOrEmpty(Output) || !Output.Contains(searchString))
             {
                 return doctestNames;
             }
-
-            string searchString = "===============================================================================";
+            
             int startOfDoctestListIndex = Output.IndexOf(searchString) + searchString.Length;
             int endOfDoctestListIndex = Output.LastIndexOf(searchString);
             string subString = Output.Substring(startOfDoctestListIndex, endOfDoctestListIndex - startOfDoctestListIndex).Trim();
