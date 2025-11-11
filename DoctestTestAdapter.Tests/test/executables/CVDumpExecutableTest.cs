@@ -51,7 +51,7 @@ namespace DoctestTestAdapter.Tests.Executables
                 _cvDumpExecutable.SetPdbFilePath(TestCommon.UsingDoctestMainPdbFilePath);
                 List<string> sourceFiles = _cvDumpExecutable.GetSourceFiles();
                 Assert.IsNotNull(sourceFiles);
-                Assert.HasCount(1, sourceFiles);
+                Assert.HasCount(2, sourceFiles);
 
                 Assert.IsEmpty(capturedTestMessageLevels.Values);
                 Assert.IsEmpty(capturedTestMessages.Values);
@@ -77,7 +77,7 @@ namespace DoctestTestAdapter.Tests.Executables
                 _cvDumpExecutable.SetPdbFilePath(TestCommon.DLLPdbFilePath);
                 List<string> sourceFiles = _cvDumpExecutable.GetSourceFiles();
                 Assert.IsNotNull(sourceFiles);
-                Assert.HasCount(1, sourceFiles);
+                Assert.HasCount(2, sourceFiles);
 
                 Assert.IsEmpty(capturedTestMessageLevels.Values);
                 Assert.IsEmpty(capturedTestMessages.Values);

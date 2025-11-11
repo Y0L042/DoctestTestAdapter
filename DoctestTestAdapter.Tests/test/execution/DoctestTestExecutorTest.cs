@@ -320,5 +320,113 @@ namespace DoctestTestAdapter.Tests.Execution
                 Assert.IsTrue(string.Join("\n", capturedTestResults.Values[10].ErrorMessage).Contains("FAIL_CHECK called for failing test"));
             });
         }
+
+        [TestMethod]
+        public void ExecuteExeWithTestsOnlyInHFiles()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                IFrameworkHandle frameworkHandle = A.Fake<IFrameworkHandle>();
+                IRunContext runContext = A.Fake<IRunContext>();
+                Captured<TestMessageLevel> capturedTestMessageLevels = A.Captured<TestMessageLevel>();
+                Captured<string> capturedTestMessages = A.Captured<string>();
+                Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
+                Captured<TestResult> capturedTestResults = A.Captured<TestResult>();
+                A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
+                   .DoesNothing();
+                A.CallTo(() => frameworkHandle.RecordStart(capturedTestCases._))
+                    .DoesNothing();
+                A.CallTo(() => frameworkHandle.RecordResult(capturedTestResults._))
+                    .DoesNothing();
+
+                List<TestCase> testCases = new TestCaseFactory(TestCommon.TestsOnlyInHFilesExecutableFilePath, null, runContext, frameworkHandle).CreateTestCases();
+                Assert.HasCount(1, testCases);
+
+                TestCommon.AssertTestCase(testCases[0],
+                    TestCommon.TestsOnlyInHFilesExecutableFilePath,
+                    "Empty Namespace::Empty Class::[TestsOnlyInHFiles] - Is Even",
+                    "[TestsOnlyInHFiles] - Is Even",
+                    TestCommon.TestsOnlyInHFilesTestHeaderFilePath,
+                    10);
+
+                ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
+                doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
+
+                Assert.HasCount(1, capturedTestResults.Values);
+                Assert.AreEqual(TestOutcome.Passed, capturedTestResults.Values[0].Outcome);
+            });
+        }
+
+        [TestMethod]
+        public void ExecuteExeWithTestsOnlyInHPPFiles()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                IFrameworkHandle frameworkHandle = A.Fake<IFrameworkHandle>();
+                IRunContext runContext = A.Fake<IRunContext>();
+                Captured<TestMessageLevel> capturedTestMessageLevels = A.Captured<TestMessageLevel>();
+                Captured<string> capturedTestMessages = A.Captured<string>();
+                Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
+                Captured<TestResult> capturedTestResults = A.Captured<TestResult>();
+                A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
+                   .DoesNothing();
+                A.CallTo(() => frameworkHandle.RecordStart(capturedTestCases._))
+                    .DoesNothing();
+                A.CallTo(() => frameworkHandle.RecordResult(capturedTestResults._))
+                    .DoesNothing();
+
+                List<TestCase> testCases = new TestCaseFactory(TestCommon.TestsOnlyInHPPFilesExecutableFilePath, null, runContext, frameworkHandle).CreateTestCases();
+                Assert.HasCount(1, testCases);
+
+                TestCommon.AssertTestCase(testCases[0],
+                    TestCommon.TestsOnlyInHPPFilesExecutableFilePath,
+                    "Empty Namespace::Empty Class::[TestsOnlyInHPPFiles] - Is Even",
+                    "[TestsOnlyInHPPFiles] - Is Even",
+                    TestCommon.TestsOnlyInHPPFilesTestHeaderFilePath,
+                    10);
+
+                ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
+                doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
+
+                Assert.HasCount(1, capturedTestResults.Values);
+                Assert.AreEqual(TestOutcome.Passed, capturedTestResults.Values[0].Outcome);
+            });
+        }
+
+        [TestMethod]
+        public void ExecuteExeWithTestsOnlyInCPPFiles()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                IFrameworkHandle frameworkHandle = A.Fake<IFrameworkHandle>();
+                IRunContext runContext = A.Fake<IRunContext>();
+                Captured<TestMessageLevel> capturedTestMessageLevels = A.Captured<TestMessageLevel>();
+                Captured<string> capturedTestMessages = A.Captured<string>();
+                Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
+                Captured<TestResult> capturedTestResults = A.Captured<TestResult>();
+                A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
+                   .DoesNothing();
+                A.CallTo(() => frameworkHandle.RecordStart(capturedTestCases._))
+                    .DoesNothing();
+                A.CallTo(() => frameworkHandle.RecordResult(capturedTestResults._))
+                    .DoesNothing();
+
+                List<TestCase> testCases = new TestCaseFactory(TestCommon.TestsOnlyInCPPFilesExecutableFilePath, null, runContext, frameworkHandle).CreateTestCases();
+                Assert.HasCount(1, testCases);
+
+                TestCommon.AssertTestCase(testCases[0],
+                    TestCommon.TestsOnlyInCPPFilesExecutableFilePath,
+                    "Empty Namespace::Empty Class::[TestsOnlyInCPPFiles] - Is Even",
+                    "[TestsOnlyInCPPFiles] - Is Even",
+                    TestCommon.TestsOnlyInCPPFilesTestHeaderFilePath,
+                    8);
+
+                ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
+                doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
+
+                Assert.HasCount(1, capturedTestResults.Values);
+                Assert.AreEqual(TestOutcome.Passed, capturedTestResults.Values[0].Outcome);
+            });
+        }
     }
 }

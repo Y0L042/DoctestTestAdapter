@@ -252,5 +252,65 @@ namespace DoctestTestAdapter.Tests.Discovery
         [TestMethod]
         public void DiscoverExeWithEnableDebugLogsSetting() =>
             UsingDoctestMainExe(TestCommon.GeneralRunSettingsEnableDebugLogsExample, true);
+
+        [TestMethod]
+        public void DiscoverExeWithTestsOnlyInHFiles()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                IEnumerable<string> sources = new List<string>() { TestCommon.TestsOnlyInHFilesExecutableFilePath };
+                IRunContext discoveryContext = A.Fake<IRunContext>();
+                IMessageLogger messageLogger = A.Fake<IMessageLogger>();
+                ITestCaseDiscoverySink testCaseDiscoverySink = A.Fake<ITestCaseDiscoverySink>();
+                Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
+                A.CallTo(() => testCaseDiscoverySink.SendTestCase(capturedTestCases._))
+                    .DoesNothing();
+
+                ITestDiscoverer doctestTestDiscoverer = new DoctestTestDiscoverer();
+                doctestTestDiscoverer.DiscoverTests(sources, discoveryContext, messageLogger, testCaseDiscoverySink);
+
+                Assert.HasCount(1, capturedTestCases.Values);
+            });
+        }
+
+        [TestMethod]
+        public void DiscoverExeWithTestsOnlyInHPPFiles()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                IEnumerable<string> sources = new List<string>() { TestCommon.TestsOnlyInHPPFilesExecutableFilePath };
+                IRunContext discoveryContext = A.Fake<IRunContext>();
+                IMessageLogger messageLogger = A.Fake<IMessageLogger>();
+                ITestCaseDiscoverySink testCaseDiscoverySink = A.Fake<ITestCaseDiscoverySink>();
+                Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
+                A.CallTo(() => testCaseDiscoverySink.SendTestCase(capturedTestCases._))
+                    .DoesNothing();
+
+                ITestDiscoverer doctestTestDiscoverer = new DoctestTestDiscoverer();
+                doctestTestDiscoverer.DiscoverTests(sources, discoveryContext, messageLogger, testCaseDiscoverySink);
+
+                Assert.HasCount(1, capturedTestCases.Values);
+            });
+        }
+
+        [TestMethod]
+        public void DiscoverExeWithTestsOnlyInCPPFiles()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                IEnumerable<string> sources = new List<string>() { TestCommon.TestsOnlyInCPPFilesExecutableFilePath };
+                IRunContext discoveryContext = A.Fake<IRunContext>();
+                IMessageLogger messageLogger = A.Fake<IMessageLogger>();
+                ITestCaseDiscoverySink testCaseDiscoverySink = A.Fake<ITestCaseDiscoverySink>();
+                Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
+                A.CallTo(() => testCaseDiscoverySink.SendTestCase(capturedTestCases._))
+                    .DoesNothing();
+
+                ITestDiscoverer doctestTestDiscoverer = new DoctestTestDiscoverer();
+                doctestTestDiscoverer.DiscoverTests(sources, discoveryContext, messageLogger, testCaseDiscoverySink);
+
+                Assert.HasCount(1, capturedTestCases.Values);
+            });
+        }
     }
 }
