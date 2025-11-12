@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unrelease]
+
+See the [release](https://github.com/comfyjase/DoctestTestAdapter/releases) for binary assets.
+
+### Fixed
+
+#### Discovery
+* Fixed issue missing tests inside of .hpp and .cpp files.
+* Fixed substring error when checking for doctest output.
+
+### Removed
+
+#### Discovery
+* Removed log output when a new custom TEST_CASE macro is discovered.
+
+### Added
+
+#### Executor
+* Support for printing doctest message macro output to the text explorer window.
+
 ## [0.1.1-Pre-Release] - 2025-04-29
 
 See the [release](https://github.com/comfyjase/DoctestTestAdapter/releases) for binary assets.
