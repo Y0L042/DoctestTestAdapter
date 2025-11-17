@@ -29,10 +29,11 @@ body:
           Which version of **Test Adapter for Doctest** did you use?
         options:
           - Pre-Release v0.1.0
-          - Pre-Release v0.1.1 (Default)
+          - Pre-Release v0.1.1
+          - Pre-Release v0.2.0 (Default)
           - main branch
           - dev branch
-        default: 1
+        default: 2
       validations:
         required: true
         
