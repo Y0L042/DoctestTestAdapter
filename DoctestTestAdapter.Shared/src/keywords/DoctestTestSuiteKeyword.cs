@@ -24,13 +24,14 @@
 
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DoctestTestAdapter.Shared.Keywords
 {
     internal sealed class DoctestTestSuiteKeyword : Keyword
     {
         private List<string> _allTestSuiteNames = new List<string>();
-        private string _currentTestSuiteName = string.Empty;
+        private Stack<string> _testSuiteStack = new Stack<string>();
 
         internal override string Word => "TEST_SUITE";
 
@@ -39,45 +40,50 @@ namespace DoctestTestAdapter.Shared.Keywords
             _allTestSuiteNames = allTestSuiteNames;
         }
 
+        internal void Reset()
+        {
+            _testSuiteStack.Clear();
+        }
+
         internal override void OnEnterKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
         {
             string testSuiteName = _allTestSuiteNames.Find(s => line.Contains("\"" + s + "\""));
-            _currentTestSuiteName = testSuiteName;
-            if (string.IsNullOrEmpty(_currentTestSuiteName))
+
+            if (string.IsNullOrEmpty(testSuiteName))
             {
+                _testSuiteStack.Push(string.Empty); // Push placeholder to balance stack
                 return;
             }
 
-            if (string.IsNullOrEmpty(namespaceName))
+            _testSuiteStack.Push(testSuiteName);
+
+            // Use className for TEST_SUITE to keep it separate from C++ namespaces
+            if (string.IsNullOrEmpty(className))
             {
-                namespaceName = _currentTestSuiteName;
+                className = testSuiteName;
             }
             else
             {
-                namespaceName += (doubleColonSeparator + _currentTestSuiteName);
+                className += (doubleColonSeparator + testSuiteName);
             }
         }
 
         internal override void OnExitKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
         {
-            if (string.IsNullOrEmpty(_currentTestSuiteName))
+            if (_testSuiteStack.Count == 0)
             {
                 return;
             }
 
-            if (_currentTestSuiteName == namespaceName)
+            string exitingSuite = _testSuiteStack.Pop();
+            if (string.IsNullOrEmpty(exitingSuite))
             {
-                namespaceName = string.Empty;
-            }
-            else
-            {
-                int testSuiteSubstringIndex = namespaceName.LastIndexOf(_currentTestSuiteName);
-                int separatorIndex = namespaceName.LastIndexOf(doubleColonSeparator, testSuiteSubstringIndex);
-
-                namespaceName = namespaceName.Substring(0, separatorIndex);
+                return;
             }
 
-            _currentTestSuiteName = namespaceName;
+            // Rebuild className from remaining stack
+            var remainingSuites = _testSuiteStack.Reverse().Where(s => !string.IsNullOrEmpty(s));
+            className = string.Join(doubleColonSeparator, remainingSuites);
         }
     }
 }

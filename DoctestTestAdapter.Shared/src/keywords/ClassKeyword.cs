@@ -38,33 +38,40 @@ namespace DoctestTestAdapter.Shared.Keywords
         {
             string testClassName = string.Empty;
 
-            int startIndex = line.IndexOf(Word) + Word.Length;
+            int wordIndex = line.IndexOf(Word);
+            if (wordIndex == -1)
+            {
+                return testClassName;
+            }
 
-            // E.g. if the line only contains the class keyword and nothing else...
-            // Then just count this as an empty class.
-            if (startIndex == line.Length)
+            int startIndex = wordIndex + Word.Length;
+
+            if (startIndex >= line.Length)
             {
                 return testClassName;
             }
 
             int firstSpaceAfterClassKeywordIndex = line.IndexOf(" ");
+            if (firstSpaceAfterClassKeywordIndex == -1)
+            {
+                return testClassName;
+            }
+
             int lastSpaceAfterFirstSpaceIndex = line.IndexOf(" ", firstSpaceAfterClassKeywordIndex + 1);
             int endIndex = -1;
 
-            // Means it must be declared like so: "class Example"
             if (lastSpaceAfterFirstSpaceIndex == -1)
             {
                 endIndex = line.Length;
             }
-            // Means it is declared like so: "class Example "
             else
             {
                 endIndex = lastSpaceAfterFirstSpaceIndex;
             }
 
-            if (endIndex == -1)
+            if (endIndex == -1 || endIndex <= startIndex)
             {
-                throw new InvalidOperationException($"ClassKeyword from {line} 'endIndex' is still '-1' which is unexpected at this point, abort!");
+                return testClassName;
             }
 
             testClassName = line.Substring(startIndex, endIndex - startIndex).Trim();

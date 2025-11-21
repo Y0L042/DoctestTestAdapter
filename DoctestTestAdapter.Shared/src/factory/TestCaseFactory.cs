@@ -143,9 +143,22 @@ namespace DoctestTestAdapter.Shared.Factory
                 allKeywords.AddRange(doctestKeywords);
                 allKeywords.Add(new CustomMacroKeyword(doctestKeywords, _logger));
 
+                // Filter out vendor/third-party files - only scan files that might contain tests
+                var filesToScan = allSourceFilePaths
+                    .Where(f => !f.Contains("\\vendor\\") && !f.Contains("/vendor/"))
+                    .ToList();
+
+                // Get the TEST_SUITE keyword for resetting its stack per file
+                var testSuiteKeyword = doctestKeywords.OfType<DoctestTestSuiteKeyword>().FirstOrDefault();
+
                 // Loop over all of the source files and read them line by line
-                foreach (string sourceFilePath in allSourceFilePaths)
+                foreach (string sourceFilePath in filesToScan)
                 {
+                    // Reset namespace/class state for each file
+                    testNamespace = string.Empty;
+                    testClassName = string.Empty;
+                    testSuiteKeyword?.Reset();
+
                     string[] allLines = File.ReadAllLines(sourceFilePath);
                     int currentLineNumber = 0;
 
